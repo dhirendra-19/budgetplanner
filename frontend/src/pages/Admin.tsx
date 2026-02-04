@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { apiFetch, storeToken } from "../api/client";
 
+const countries = ["USA", "Canada", "India"];
+
 export default function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
@@ -40,6 +42,14 @@ export default function Admin() {
     window.location.href = "/dashboard";
   };
 
+  const updateCountry = async (userId: number, country: string) => {
+    await apiFetch(`/admin/users/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ country })
+    });
+    load();
+  };
+
   return (
     <div className="space-y-6">
       <div className="card bg-white/80 p-6">
@@ -52,11 +62,25 @@ export default function Admin() {
         <h2 className="section-title text-lg text-ink">Users</h2>
         <div className="mt-4 space-y-3">
           {users.map((user) => (
-            <div key={user.id} className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3">
+            <div key={user.id} className="grid gap-3 rounded-2xl border border-slate-100 px-4 py-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
               <div>
                 <p className="text-sm font-semibold text-slate-700">{user.full_name}</p>
                 <p className="text-xs text-slate-500">@{user.username}</p>
               </div>
+              <div className="text-xs text-slate-500">
+                {user.country} ({user.currency})
+              </div>
+              <select
+                value={user.country}
+                onChange={(event) => updateCountry(user.id, event.target.value)}
+                className="rounded-full border border-slate-200 px-3 py-1 text-xs"
+              >
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={() => impersonate(user)}
                 className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold"

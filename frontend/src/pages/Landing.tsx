@@ -1,7 +1,8 @@
-﻿import { FormEvent, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
 const genders = ["Female", "Male", "Non-binary", "Prefer not to say"];
+const countries = ["USA", "Canada", "India"];
 
 export default function Landing() {
   const { login, register } = useAuth();
@@ -13,7 +14,8 @@ export default function Landing() {
     username: "",
     password: "",
     full_name: "",
-    gender: genders[0]
+    gender: genders[0],
+    country: countries[0]
   });
 
   const handleChange = (field: string, value: string) => {
@@ -31,7 +33,8 @@ export default function Landing() {
           username: form.username,
           password: form.password,
           full_name: form.full_name,
-          gender: form.gender
+          gender: form.gender,
+          country: form.country
         });
         setIsLogin(true);
       }
@@ -106,6 +109,17 @@ export default function Landing() {
                     </option>
                   ))}
                 </select>
+                <select
+                  value={form.country}
+                  onChange={(event) => handleChange("country", event.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                >
+                  {countries.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
               </div>
             )}
             <input
@@ -146,4 +160,3 @@ export default function Landing() {
     </div>
   );
 }
-

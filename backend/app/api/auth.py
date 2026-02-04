@@ -10,6 +10,7 @@ from app.db import get_db
 from app import models
 from app.schemas import AuthLogin, TokenResponse, UserCreate, UserOut
 from app.services.budget import ensure_default_categories
+from app.services.currency import get_currency
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -24,6 +25,8 @@ def register(payload: UserCreate, db: Session = Depends(get_db)):
         username=payload.username,
         full_name=payload.full_name,
         gender=payload.gender,
+        country=payload.country,
+        currency=get_currency(payload.country),
         password_hash=hash_password(payload.password),
     )
     db.add(user)

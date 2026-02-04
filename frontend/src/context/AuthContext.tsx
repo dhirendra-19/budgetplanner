@@ -6,7 +6,10 @@ export type User = {
   username: string;
   full_name: string;
   gender: string;
+  country: string;
+  currency: string;
   created_at: string;
+  is_admin: boolean;
 };
 
 type AuthContextValue = {

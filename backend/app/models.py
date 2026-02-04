@@ -13,6 +13,8 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     full_name: Mapped[str] = mapped_column(String(120))
     gender: Mapped[str] = mapped_column(String(30))
+    country: Mapped[str] = mapped_column(String(40), default="USA")
+    currency: Mapped[str] = mapped_column(String(10), default="USD")
     password_hash: Mapped[str] = mapped_column(String(255))
     is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

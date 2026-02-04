@@ -10,6 +10,7 @@ class UserCreate(BaseModel):
     password: str = Field(min_length=6, max_length=128)
     full_name: str = Field(min_length=2, max_length=120)
     gender: str = Field(min_length=1, max_length=30)
+    country: str = Field(min_length=2, max_length=40)
 
 
 class UserOut(BaseModel):
@@ -19,6 +20,8 @@ class UserOut(BaseModel):
     username: str
     full_name: str
     gender: str
+    country: str
+    currency: str
     is_admin: bool = False
     created_at: datetime
 
@@ -267,7 +270,13 @@ class AdminUserOut(BaseModel):
     full_name: str
     gender: str
     is_admin: bool
+    country: str
+    currency: str
     created_at: datetime
+
+
+class AdminUpdateUser(BaseModel):
+    country: Optional[str] = None
 
 
 BudgetSalaryIn.model_rebuild()
