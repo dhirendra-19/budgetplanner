@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     cookie_samesite: str = Field(default="lax", validation_alias="COOKIE_SAMESITE")
     admin_username: str = Field(default="admin", validation_alias="ADMIN_USERNAME")
     admin_password: str = Field(default="admin123", validation_alias="ADMIN_PASSWORD")
+    disable_task_scheduler: bool = Field(default=False, validation_alias="DISABLE_TASK_SCHEDULER")
+
+    twilio_account_sid: str = Field(default="", validation_alias="TWILIO_ACCOUNT_SID")
+    twilio_auth_token: str = Field(default="", validation_alias="TWILIO_AUTH_TOKEN")
+    twilio_from_number: str = Field(default="", validation_alias="TWILIO_FROM_NUMBER")
+
+    sendgrid_api_key: str = Field(default="", validation_alias="SENDGRID_API_KEY")
+    sendgrid_from_email: str = Field(default="", validation_alias="SENDGRID_FROM_EMAIL")
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
 

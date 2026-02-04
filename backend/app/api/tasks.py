@@ -1,5 +1,3 @@
-from datetime import datetime, time, timedelta
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -7,6 +5,7 @@ from app import models
 from app.api.deps import get_current_user
 from app.db import get_db
 from app.schemas import TaskCreate, TaskOut, TaskUpdate
+from app.services.task_alerts import process_task_alerts
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 VALID_STATUSES = {"pending", "in_progress", "completed", "overdue"}
@@ -17,61 +16,13 @@ def list_tasks(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    tasks = (
+    process_task_alerts(db, user_id=current_user.id)
+    return (
         db.query(models.Task)
         .filter(models.Task.user_id == current_user.id)
         .order_by(models.Task.created_at.desc())
         .all()
     )
-    now = datetime.utcnow()
-    today = now.date()
-    changed = False
-    for task in tasks:
-        if task.status == "completed" or task.is_completed:
-            if task.status != "completed":
-                task.status = "completed"
-                changed = True
-            if not task.is_completed:
-                task.is_completed = True
-                changed = True
-            continue
-
-        if task.due_date and task.due_date < today and task.status != "overdue":
-            task.status = "overdue"
-            task.is_completed = False
-            changed = True
-
-        if task.due_date and task.alert_offset_minutes is not None:
-            notify_at = datetime.combine(task.due_date, time.min) - timedelta(
-                minutes=task.alert_offset_minutes
-            )
-            if now >= notify_at and (not task.last_alerted_at or task.last_alerted_at < notify_at):
-                channel = task.alert_channel or "app"
-                destination = ""
-                if channel == "sms" and task.alert_phone:
-                    destination = f" via SMS to {task.alert_phone}"
-                elif channel == "email" and task.alert_email:
-                    destination = f" via email to {task.alert_email}"
-                elif channel != "app":
-                    destination = " (delivery not configured)"
-                level = "warning" if task.status == "overdue" else "info"
-                message = f"Task alert: '{task.title}' due {task.due_date}{destination}"
-                alert = models.Alert(
-                    user_id=current_user.id,
-                    category_id=None,
-                    year=task.due_date.year if task.due_date else today.year,
-                    month=task.due_date.month if task.due_date else today.month,
-                    code="TASK_ALERT",
-                    level=level,
-                    message=message,
-                )
-                db.add(alert)
-                task.last_alerted_at = now
-                changed = True
-
-    if changed:
-        db.commit()
-    return tasks
 
 
 @router.post("", response_model=TaskOut)
