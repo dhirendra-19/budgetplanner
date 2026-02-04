@@ -1,13 +1,7 @@
-﻿import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 
 const STATUS_OPTIONS = ["pending", "in_progress", "completed", "overdue"] as const;
-
-const CHANNEL_OPTIONS = [
-  { value: "app", label: "In-app alert" },
-  { value: "email", label: "Email" },
-  { value: "sms", label: "SMS" }
-];
 
 type Task = {
   id: number;
@@ -17,9 +11,7 @@ type Task = {
   priority: string;
   status: string;
   alert_offset_minutes?: number | null;
-  alert_channel?: string;
-  alert_email?: string | null;
-  alert_phone?: string | null;
+  alert_time?: string | null;
 };
 
 type TaskForm = {
@@ -30,9 +22,7 @@ type TaskForm = {
   status: string;
   alert_value: string;
   alert_unit: "hours" | "days";
-  alert_channel: string;
-  alert_email: string;
-  alert_phone: string;
+  alert_time: string;
 };
 
 export default function Tasks() {
@@ -45,9 +35,7 @@ export default function Tasks() {
     status: "pending",
     alert_value: "",
     alert_unit: "hours",
-    alert_channel: "app",
-    alert_email: "",
-    alert_phone: ""
+    alert_time: "09:00"
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +61,7 @@ export default function Tasks() {
     event.preventDefault();
     setError(null);
     try {
+      const offsetMinutes = computeOffsetMinutes();
       await apiFetch("/tasks", {
         method: "POST",
         body: JSON.stringify({
@@ -81,10 +70,9 @@ export default function Tasks() {
           due_date: form.due_date || null,
           priority: form.priority,
           status: form.status,
-          alert_offset_minutes: computeOffsetMinutes(),
-          alert_channel: form.alert_channel,
-          alert_email: form.alert_channel === "email" ? form.alert_email : null,
-          alert_phone: form.alert_channel === "sms" ? form.alert_phone : null
+          alert_offset_minutes: offsetMinutes,
+          alert_time:
+            form.alert_unit === "days" && offsetMinutes ? form.alert_time || "09:00" : null
         })
       });
       setForm({
@@ -95,9 +83,7 @@ export default function Tasks() {
         status: "pending",
         alert_value: "",
         alert_unit: "hours",
-        alert_channel: "app",
-        alert_email: "",
-        alert_phone: ""
+        alert_time: "09:00"
       });
       load();
     } catch (err: any) {
@@ -182,40 +168,21 @@ export default function Tasks() {
               <option value="hours">Hours before</option>
               <option value="days">Days before</option>
             </select>
-            <select
-              value={form.alert_channel}
-              onChange={(event) => setForm((prev) => ({ ...prev, alert_channel: event.target.value }))}
-              className="rounded-2xl border border-slate-200 px-4 py-2"
-            >
-              {CHANNEL_OPTIONS.map((channel) => (
-                <option key={channel.value} value={channel.value}>
-                  {channel.label}
-                </option>
-              ))}
-            </select>
-            <div className="text-xs text-slate-500">
-              Leave blank to skip alerts. Email/SMS are stored as reminders; delivery requires integration.
-            </div>
+            {form.alert_unit === "days" && Number(form.alert_value) > 0 ? (
+              <input
+                type="time"
+                value={form.alert_time}
+                onChange={(event) => setForm((prev) => ({ ...prev, alert_time: event.target.value }))}
+                className="rounded-2xl border border-slate-200 px-4 py-2"
+                required
+              />
+            ) : (
+              <div className="rounded-2xl border border-transparent px-4 py-2 text-xs text-slate-500">
+                Time not required
+              </div>
+            )}
+            <div className="text-xs text-slate-500">Leave blank to skip alerts.</div>
           </div>
-
-          {form.alert_channel === "email" && (
-            <input
-              type="email"
-              value={form.alert_email}
-              onChange={(event) => setForm((prev) => ({ ...prev, alert_email: event.target.value }))}
-              placeholder="Email for alert"
-              className="rounded-2xl border border-slate-200 px-4 py-2 md:col-span-2"
-            />
-          )}
-          {form.alert_channel === "sms" && (
-            <input
-              type="tel"
-              value={form.alert_phone}
-              onChange={(event) => setForm((prev) => ({ ...prev, alert_phone: event.target.value }))}
-              placeholder="Phone for alert"
-              className="rounded-2xl border border-slate-200 px-4 py-2 md:col-span-2"
-            />
-          )}
 
           <button
             type="submit"
@@ -241,7 +208,7 @@ export default function Tasks() {
                 </p>
                 <p className="text-xs text-slate-500">{task.description || "No notes"}</p>
                 <p className="text-xs text-slate-400">
-                  Due: {task.due_date || "No due date"} • Priority: {task.priority}
+                  Due: {task.due_date || "No due date"} � Priority: {task.priority}
                 </p>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-500">

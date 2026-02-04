@@ -80,7 +80,7 @@ export default function Dashboard() {
     Promise.all([
       apiFetch<BudgetSummary>(`/budget/summary${query}`),
       apiFetch<AlertItem[]>(`/alerts${query}`),
-      apiFetch<TaskItem[]>("/tasks")
+      apiFetch<TaskItem[]>(`/tasks${query}`)
     ])
       .then(async ([summaryData, alertData, taskData]) => {
         setSummary(summaryData);

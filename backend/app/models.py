@@ -1,6 +1,6 @@
-from datetime import datetime, date
+from datetime import datetime, date, time
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, Time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -145,6 +145,7 @@ class Task(Base):
     title: Mapped[str] = mapped_column(String(140))
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    alert_time: Mapped[time | None] = mapped_column(Time, nullable=True)
     priority: Mapped[str] = mapped_column(String(20), default="medium")
     status: Mapped[str] = mapped_column(String(20), default="pending")
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)

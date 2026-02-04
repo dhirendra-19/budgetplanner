@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, time
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -141,6 +141,7 @@ class TaskBase(BaseModel):
     title: str
     description: Optional[str] = None
     due_date: Optional[date] = None
+    alert_time: Optional[time] = None
     priority: str = "medium"
     status: str = "pending"
     alert_offset_minutes: Optional[int] = None
@@ -158,6 +159,7 @@ class TaskUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     due_date: Optional[date] = None
+    alert_time: Optional[time] = None
     priority: Optional[str] = None
     status: Optional[str] = None
     alert_offset_minutes: Optional[int] = None
