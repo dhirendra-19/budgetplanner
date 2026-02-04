@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { apiFetch, storeToken } from "../api/client";
 
 export default function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const load = () => {
     Promise.all([apiFetch("/admin/users"), apiFetch("/admin/suggestions")])
@@ -25,7 +27,7 @@ export default function Admin() {
       body: JSON.stringify({ user_id: userId })
     });
     storeToken(result.access_token, true);
-    window.location.href = "/dashboard";
+    navigate("/dashboard");
   };
 
   return (
