@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { apiFetch, storeToken } from "../api/client";
 
 export type User = {
@@ -41,11 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       body: JSON.stringify({ username, password })
     });
 
-    if (remember) {
-      storeToken(result.access_token);
-    } else {
-      storeToken(null);
-    }
+    storeToken(result.access_token, remember);
 
     const profile = await apiFetch<User>("/auth/me");
     setUser(profile);
@@ -65,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     await apiFetch("/auth/logout", { method: "POST" });
-    storeToken(null);
+    storeToken(null, false);
     setUser(null);
   };
 

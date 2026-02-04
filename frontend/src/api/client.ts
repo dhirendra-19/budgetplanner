@@ -1,4 +1,4 @@
-﻿const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export type ApiError = {
   status: number;
@@ -6,7 +6,7 @@ export type ApiError = {
 };
 
 function getToken() {
-  return localStorage.getItem("access_token");
+  return localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
 }
 
 export async function apiFetch<T>(
@@ -47,11 +47,18 @@ export async function apiFetch<T>(
   return (await response.json()) as T;
 }
 
-export function storeToken(token: string | null) {
+export function storeToken(token: string | null, persist: boolean) {
   if (!token) {
     localStorage.removeItem("access_token");
+    sessionStorage.removeItem("access_token");
     return;
   }
-  localStorage.setItem("access_token", token);
+  if (persist) {
+    localStorage.setItem("access_token", token);
+    sessionStorage.removeItem("access_token");
+  } else {
+    sessionStorage.setItem("access_token", token);
+    localStorage.removeItem("access_token");
+  }
 }
 
