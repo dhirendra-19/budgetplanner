@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { apiFetch, storeToken } from "../api/client";
 
 export default function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const load = () => {
     Promise.all([apiFetch("/admin/users"), apiFetch("/admin/suggestions")])
@@ -21,13 +19,25 @@ export default function Admin() {
     load();
   }, []);
 
-  const impersonate = async (userId: number) => {
+  const impersonate = async (user: { id: number; full_name: string; username: string }) => {
+    const adminToken =
+      localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
+    const adminStorage = localStorage.getItem("access_token") ? "local" : "session";
+    if (adminToken) {
+      localStorage.setItem("admin_access_token", adminToken);
+      localStorage.setItem("admin_access_token_storage", adminStorage);
+    }
     const result = await apiFetch<{ access_token: string }>("/admin/impersonate", {
       method: "POST",
-      body: JSON.stringify({ user_id: userId })
+      body: JSON.stringify({ user_id: user.id })
     });
     storeToken(result.access_token, true);
-    navigate("/dashboard");
+    localStorage.setItem("impersonated_user_id", String(user.id));
+    localStorage.setItem(
+      "impersonated_user_label",
+      `${user.full_name} (@${user.username})`
+    );
+    window.location.href = "/dashboard";
   };
 
   return (
@@ -48,7 +58,7 @@ export default function Admin() {
                 <p className="text-xs text-slate-500">@{user.username}</p>
               </div>
               <button
-                onClick={() => impersonate(user.id)}
+                onClick={() => impersonate(user)}
                 className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold"
               >
                 Open
