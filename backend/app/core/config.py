@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     frontend_origin: str = Field(default="http://localhost:5173", validation_alias="FRONTEND_ORIGIN")
     cookie_secure: bool = Field(default=False, validation_alias="COOKIE_SECURE")
     cookie_samesite: str = Field(default="lax", validation_alias="COOKIE_SAMESITE")
+    admin_username: str = Field(default="admin", validation_alias="ADMIN_USERNAME")
+    admin_password: str = Field(default="admin123", validation_alias="ADMIN_PASSWORD")
 
     model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
 
@@ -20,4 +22,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

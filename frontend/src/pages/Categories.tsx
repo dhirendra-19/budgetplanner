@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "../api/client";
 
 export type Category = {
   id: number;
+  local_id?: number;
   name: string;
   monthly_limit: number;
   tag: string;
@@ -15,10 +16,18 @@ export default function Categories() {
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [replacementId, setReplacementId] = useState<string>("uncat");
+  const localId = useRef(1);
 
   const load = () => {
     apiFetch<Category[]>("/categories")
-      .then((data) => setCategories(data))
+      .then((data) =>
+        setCategories(
+          data.map((item) => ({
+            ...item,
+            local_id: item.local_id ?? localId.current++
+          }))
+        )
+      )
       .catch((err) => setError(err.message || "Failed to load categories"));
   };
 
@@ -29,7 +38,14 @@ export default function Categories() {
   const addCategory = () => {
     setCategories((prev) => [
       ...prev,
-      { id: 0, name: "New Category", monthly_limit: 0, tag: "regular", is_system: false }
+      {
+        id: 0,
+        local_id: localId.current++,
+        name: "New Category",
+        monthly_limit: 0,
+        tag: "regular",
+        is_system: false
+      }
     ]);
   };
 
@@ -110,54 +126,54 @@ export default function Categories() {
         {categories
           .filter((cat) => !(cat.is_system && cat.tag === "uncategorized"))
           .map((cat, idx) => (
-          <div key={`${cat.id}-${idx}`} className="card bg-white/90 p-5">
-            <div className="grid gap-3 md:grid-cols-[1.6fr_1fr_0.7fr_auto]">
-              <input
-                value={cat.name}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setCategories((prev) =>
-                    prev.map((item, i) => (i === idx ? { ...item, name: value } : item))
-                  );
-                }}
-                className="rounded-2xl border border-slate-200 px-4 py-2"
-              />
-              <input
-                type="number"
-                value={cat.monthly_limit}
-                onChange={(event) => {
-                  const value = Number(event.target.value);
-                  setCategories((prev) =>
-                    prev.map((item, i) => (i === idx ? { ...item, monthly_limit: value } : item))
-                  );
-                }}
-                className="rounded-2xl border border-slate-200 px-4 py-2"
-              />
-              <select
-                value={cat.tag}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setCategories((prev) =>
-                    prev.map((item, i) => (i === idx ? { ...item, tag: value } : item))
-                  );
-                }}
-                className="rounded-2xl border border-slate-200 px-4 py-2"
-              >
-                <option value="regular">Regular</option>
-                <option value="savings">Savings</option>
-                <option value="debt">Debt</option>
-                {cat.is_system && <option value="uncategorized">Uncategorized</option>}
-              </select>
-              <button
-                onClick={() => setDeleteTarget(cat)}
-                disabled={cat.is_system}
-                className="rounded-2xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-500 disabled:opacity-40"
-              >
-                Delete
-              </button>
+            <div key={cat.local_id ?? `${cat.id}-${idx}`} className="card bg-white/90 p-5">
+              <div className="grid gap-3 md:grid-cols-[1.6fr_1fr_0.7fr_auto]">
+                <input
+                  value={cat.name}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setCategories((prev) =>
+                      prev.map((item, i) => (i === idx ? { ...item, name: value } : item))
+                    );
+                  }}
+                  className="rounded-2xl border border-slate-200 px-4 py-2"
+                />
+                <input
+                  type="number"
+                  value={cat.monthly_limit}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    setCategories((prev) =>
+                      prev.map((item, i) => (i === idx ? { ...item, monthly_limit: value } : item))
+                    );
+                  }}
+                  className="rounded-2xl border border-slate-200 px-4 py-2"
+                />
+                <select
+                  value={cat.tag}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    setCategories((prev) =>
+                      prev.map((item, i) => (i === idx ? { ...item, tag: value } : item))
+                    );
+                  }}
+                  className="rounded-2xl border border-slate-200 px-4 py-2"
+                >
+                  <option value="regular">Regular</option>
+                  <option value="savings">Savings</option>
+                  <option value="debt">Debt</option>
+                  {cat.is_system && <option value="uncategorized">Uncategorized</option>}
+                </select>
+                <button
+                  onClick={() => setDeleteTarget(cat)}
+                  disabled={cat.is_system}
+                  className="rounded-2xl border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-500 disabled:opacity-40"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
 
       {deleteTarget && (
@@ -201,4 +217,3 @@ export default function Categories() {
     </div>
   );
 }
-

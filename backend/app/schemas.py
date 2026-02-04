@@ -19,6 +19,7 @@ class UserOut(BaseModel):
     username: str
     full_name: str
     gender: str
+    is_admin: bool = False
     created_at: datetime
 
 
@@ -185,6 +186,26 @@ class BudgetSummary(BaseModel):
     categories: List[CategorySpend]
 
 
+class DebtSimulationResult(BaseModel):
+    total_months: int
+    payoff_schedule: List[dict]
+
+
+class DebtSimulationRequest(BaseModel):
+    strategy: str = Field(default="avalanche")
+    extra_monthly_payment: float = 0
+
+
+class AuthLogin(BaseModel):
+    username: str
+    password: str
+
+
+class CategoryDeleteRequest(BaseModel):
+    replacement_category_id: Optional[int] = None
+    move_to_uncategorized: bool = True
+
+
 class BudgetCurrentOut(BaseModel):
     year: int
     month: int
@@ -220,26 +241,34 @@ class BudgetLimitsIn(BaseModel):
     limits: List[CategoryLimitIn]
 
 
+class SuggestionCreate(BaseModel):
+    message: str
+
+
+class SuggestionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    message: str
+    status: str
+    created_at: datetime
+
+
+class AdminImpersonateRequest(BaseModel):
+    user_id: int
+
+
+class AdminUserOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    username: str
+    full_name: str
+    gender: str
+    is_admin: bool
+    created_at: datetime
+
+
 BudgetSalaryIn.model_rebuild()
 BudgetCurrentOut.model_rebuild()
-
-
-class DebtSimulationResult(BaseModel):
-    total_months: int
-    payoff_schedule: List[dict]
-
-
-class DebtSimulationRequest(BaseModel):
-    strategy: str = Field(default="avalanche")
-    extra_monthly_payment: float = 0
-
-
-class AuthLogin(BaseModel):
-    username: str
-    password: str
-
-
-class CategoryDeleteRequest(BaseModel):
-    replacement_category_id: Optional[int] = None
-    move_to_uncategorized: bool = True
-

@@ -1,4 +1,4 @@
-﻿import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
@@ -8,6 +8,8 @@ import Categories from "./pages/Categories";
 import Debts from "./pages/Debts";
 import Tasks from "./pages/Tasks";
 import Alerts from "./pages/Alerts";
+import Suggestions from "./pages/Suggestions";
+import Admin from "./pages/Admin";
 import TopNav from "./components/TopNav";
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -93,8 +95,23 @@ export default function App() {
           </ProtectedLayout>
         }
       />
+      <Route
+        path="/suggestions"
+        element={
+          <ProtectedLayout>
+            <Suggestions />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedLayout>
+            <Admin />
+          </ProtectedLayout>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
-

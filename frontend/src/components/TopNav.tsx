@@ -1,18 +1,23 @@
-﻿import { NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-
-const navItems = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/wizard", label: "Budget Wizard" },
-  { to: "/expenses", label: "Expenses" },
-  { to: "/categories", label: "Categories" },
-  { to: "/debts", label: "Debts" },
-  { to: "/tasks", label: "Tasks" },
-  { to: "/alerts", label: "Alerts" }
-];
 
 export default function TopNav() {
   const { logout, user } = useAuth();
+
+  const navItems = [
+    { to: "/dashboard", label: "Dashboard" },
+    { to: "/wizard", label: "Budget Wizard" },
+    { to: "/expenses", label: "Expenses" },
+    { to: "/categories", label: "Categories" },
+    { to: "/debts", label: "Debts" },
+    { to: "/tasks", label: "Tasks" },
+    { to: "/alerts", label: "Alerts" },
+    { to: "/suggestions", label: "Suggestions" }
+  ];
+
+  if (user?.is_admin) {
+    navItems.push({ to: "/admin", label: "Admin" });
+  }
 
   return (
     <div className="sticky top-0 z-40 w-full border-b border-white/60 bg-white/70 backdrop-blur">
@@ -48,4 +53,3 @@ export default function TopNav() {
     </div>
   );
 }
-

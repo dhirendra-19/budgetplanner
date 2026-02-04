@@ -87,3 +87,14 @@ VITE_API_URL=http://localhost:8000
 - Category deletions require moving expenses to a replacement category or to “Uncategorized”.
 - Budget summaries recalculate whenever categories or expenses change.
 
+Admin login:
+- Set ADMIN_USERNAME and ADMIN_PASSWORD in backend env (Render) to choose admin credentials.
+- Admin is created automatically on backend startup if no admin exists.
+
+Suggestions:
+- Users can submit suggestions from Suggestions tab.
+- Admin can view all suggestions in Admin tab.
+
+Impersonation:
+- Admin can click "Open" on a user to switch into that account.
+- This uses a new access token issued by /admin/impersonate.

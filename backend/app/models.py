@@ -14,6 +14,7 @@ class User(Base):
     full_name: Mapped[str] = mapped_column(String(120))
     gender: Mapped[str] = mapped_column(String(30))
     password_hash: Mapped[str] = mapped_column(String(255))
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     categories = relationship("Category", back_populates="user", cascade="all, delete-orphan")
@@ -22,6 +23,7 @@ class User(Base):
     expenses = relationship("Expense", back_populates="user", cascade="all, delete-orphan")
     alerts = relationship("Alert", back_populates="user", cascade="all, delete-orphan")
     tasks = relationship("Task", back_populates="user", cascade="all, delete-orphan")
+    suggestions = relationship("Suggestion", back_populates="user", cascade="all, delete-orphan")
 
 
 class BudgetMonth(Base):
@@ -144,3 +146,14 @@ class Task(Base):
 
     user = relationship("User", back_populates="tasks")
 
+
+class Suggestion(Base):
+    __tablename__ = "suggestions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    message: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(20), default="open")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="suggestions")
