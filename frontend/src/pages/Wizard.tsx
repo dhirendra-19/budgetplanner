@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { apiFetch } from "../api/client";
 import StatCard from "../components/StatCard";
+import { useAuth } from "../context/AuthContext";
+import { formatCurrency } from "../utils/format";
 
 const steps = ["Income", "Categories", "Debts", "Summary"];
 
@@ -30,6 +32,8 @@ type BudgetSummary = {
 };
 
 export default function Wizard() {
+  const { user } = useAuth();
+  const currency = user?.currency || "USD";
   const [step, setStep] = useState(0);
   const [salary, setSalary] = useState(0);
   const [showSalary, setShowSalary] = useState(true);
@@ -339,11 +343,7 @@ export default function Wizard() {
 
           <div className="flex items-center justify-between">
             <div className="text-sm text-slate-600">
-              Total income: $
-              {(
-                (showSalary ? salary : 0) +
-                incomeSources.reduce((sum, item) => sum + (item.amount || 0), 0)
-              ).toFixed(2)}
+              Total income: {formatCurrency((showSalary ? salary : 0) + incomeSources.reduce((sum, item) => sum + (item.amount || 0), 0), currency)}
             </div>
             <button
               onClick={saveSalary}
@@ -523,7 +523,7 @@ export default function Wizard() {
             <h2 className="section-title text-xl text-ink">Budget summary</h2>
             {summary && (
               <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <StatCard title="Remaining Flex" value={`$${summary.remaining_flex.toFixed(2)}`} />
+                <StatCard title="Remaining Flex" value={formatCurrency(summary.remaining_flex, currency)} />
                 <StatCard
                   title="Status"
                   value={summary.over_budget ? "Over budget" : "On track"}

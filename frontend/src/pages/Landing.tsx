@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { apiFetch } from "../api/client";
 
 const genders = ["Female", "Male", "Non-binary", "Prefer not to say"];
 const countries = ["USA", "Canada", "India"];
@@ -7,8 +8,10 @@ const countries = ["USA", "Canada", "India"];
 export default function Landing() {
   const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remember, setRemember] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     username: "",
@@ -16,6 +19,11 @@ export default function Landing() {
     full_name: "",
     gender: genders[0],
     country: countries[0]
+  });
+
+  const [forgotForm, setForgotForm] = useState({
+    username: "",
+    reason: ""
   });
 
   const handleChange = (field: string, value: string) => {
@@ -40,6 +48,23 @@ export default function Landing() {
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
+    }
+  };
+
+  const submitForgot = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setResetMessage(null);
+    try {
+      await apiFetch("/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify(forgotForm)
+      });
+      setResetMessage("Reset request sent to admin.");
+      setForgotForm({ username: "", reason: "" });
+      setShowForgot(false);
+    } catch (err: any) {
+      setError(err.message || "Failed to send reset request");
     }
   };
 
@@ -87,6 +112,8 @@ export default function Landing() {
               {isLogin ? "Need an account?" : "Have an account?"}
             </button>
           </div>
+
+          {resetMessage && <p className="mt-4 text-sm text-emerald-600">{resetMessage}</p>}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             {!isLogin && (
@@ -155,6 +182,47 @@ export default function Landing() {
               {isLogin ? "Sign in" : "Create account"}
             </button>
           </form>
+
+          {isLogin && (
+            <div className="mt-4 text-xs text-slate-500">
+              <button
+                type="button"
+                onClick={() => setShowForgot((prev) => !prev)}
+                className="underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
+
+          {showForgot && (
+            <form onSubmit={submitForgot} className="mt-4 space-y-3">
+              <input
+                value={forgotForm.username}
+                onChange={(event) =>
+                  setForgotForm((prev) => ({ ...prev, username: event.target.value }))
+                }
+                placeholder="Username"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                required
+              />
+              <textarea
+                value={forgotForm.reason}
+                onChange={(event) =>
+                  setForgotForm((prev) => ({ ...prev, reason: event.target.value }))
+                }
+                placeholder="Reason or context"
+                className="w-full rounded-2xl border border-slate-200 px-4 py-3"
+                rows={3}
+              />
+              <button
+                type="submit"
+                className="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-semibold"
+              >
+                Send reset request
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

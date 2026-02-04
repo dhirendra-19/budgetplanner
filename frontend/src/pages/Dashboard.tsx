@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../api/client";
 import StatCard from "../components/StatCard";
 import ProgressBar from "../components/ProgressBar";
+import { formatCurrency } from "../utils/format";
+import { useAuth } from "../context/AuthContext";
 
 type CategorySpend = {
   category_id: number;
@@ -43,6 +45,8 @@ type DebtSimulation = {
 };
 
 export default function Dashboard() {
+  const { user } = useAuth();
+  const currency = user?.currency || "USD";
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [debtPlan, setDebtPlan] = useState<DebtSimulation | null>(null);
@@ -152,18 +156,21 @@ export default function Dashboard() {
         </div>
         <StatCard
           title="Total Monthly Income"
-          value={`$${summary.total_income.toFixed(2)}`}
-          subtitle={`Salary $${summary.salary.toFixed(2)} + Other $${summary.other_income.toFixed(2)}`}
+          value={formatCurrency(summary.total_income, currency)}
+          subtitle={`Salary ${formatCurrency(summary.salary, currency)} + Other ${formatCurrency(
+            summary.other_income,
+            currency
+          )}`}
         />
         <StatCard
           title="Remaining Flex"
-          value={`$${summary.remaining_flex.toFixed(2)}`}
+          value={formatCurrency(summary.remaining_flex, currency)}
           tone={summary.remaining_flex < 0 ? "alert" : "success"}
         />
         <StatCard
           title="Spent MTD"
-          value={`$${summary.total_spent.toFixed(2)}`}
-          subtitle={`Projected: $${summary.projected_total.toFixed(2)}`}
+          value={formatCurrency(summary.total_spent, currency)}
+          subtitle={`Projected: ${formatCurrency(summary.projected_total, currency)}`}
           tone={summary.over_budget ? "alert" : "default"}
         />
       </section>
@@ -184,7 +191,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-semibold text-slate-700">{cat.name}</span>
                   <span className="text-slate-500">
-                    ${cat.spent.toFixed(2)} / ${cat.monthly_limit.toFixed(2)}
+                    {formatCurrency(cat.spent, currency)} / {formatCurrency(cat.monthly_limit, currency)}
                   </span>
                 </div>
                 <ProgressBar value={cat.percent} />
@@ -209,7 +216,7 @@ export default function Dashboard() {
         <section className="card bg-white/90 p-6">
           <h2 className="section-title text-xl text-ink">Debt payoff plan (Avalanche)</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Uses remaining flex (${summary.remaining_flex.toFixed(2)}) as extra monthly payment.
+            Uses remaining flex ({formatCurrency(summary.remaining_flex, currency)}) as extra monthly payment.
           </p>
           <div className="mt-4 grid gap-3 md:grid-cols-3 text-sm">
             <div className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3">

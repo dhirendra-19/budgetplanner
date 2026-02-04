@@ -1,5 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../api/client";
+import { useAuth } from "../context/AuthContext";
+import { formatCurrency } from "../utils/format";
 
 type Category = {
   id: number;
@@ -15,6 +17,8 @@ type Expense = {
 };
 
 export default function Expenses() {
+  const { user } = useAuth();
+  const currency = user?.currency || "USD";
   const [categories, setCategories] = useState<Category[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [form, setForm] = useState({
@@ -120,7 +124,9 @@ export default function Expenses() {
           {expenses.map((expense) => (
             <div key={expense.id} className="flex items-center justify-between rounded-2xl border border-slate-100 px-4 py-3">
               <div>
-                <p className="text-sm font-semibold text-slate-700">${expense.amount.toFixed(2)}</p>
+                <p className="text-sm font-semibold text-slate-700">
+                  {formatCurrency(expense.amount, currency)}
+                </p>
                 <p className="text-xs text-slate-500">
                   {categoryMap.get(expense.category_id) || "Uncategorized"} - {expense.note || "No note"}
                 </p>
@@ -145,4 +151,3 @@ export default function Expenses() {
     </div>
   );
 }
-

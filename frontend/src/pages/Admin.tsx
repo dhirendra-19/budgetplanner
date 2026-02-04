@@ -6,13 +6,16 @@ const countries = ["USA", "Canada", "India"];
 export default function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [resets, setResets] = useState<any[]>([]);
+  const [resetPassword, setResetPassword] = useState<Record<number, string>>({});
   const [error, setError] = useState<string | null>(null);
 
   const load = () => {
-    Promise.all([apiFetch("/admin/users"), apiFetch("/admin/suggestions")])
-      .then(([userData, suggestionData]: any) => {
+    Promise.all([apiFetch("/admin/users"), apiFetch("/admin/suggestions"), apiFetch("/admin/password-resets")])
+      .then(([userData, suggestionData, resetData]: any) => {
         setUsers(userData);
         setSuggestions(suggestionData);
+        setResets(resetData);
       })
       .catch((err) => setError(err.message || "Failed to load admin data"));
   };
@@ -50,6 +53,22 @@ export default function Admin() {
     load();
   };
 
+  const deleteUser = async (userId: number) => {
+    await apiFetch(`/admin/users/${userId}`, { method: "DELETE" });
+    load();
+  };
+
+  const resetUserPassword = async (requestId: number) => {
+    const newPassword = resetPassword[requestId];
+    if (!newPassword) return;
+    await apiFetch(`/admin/password-resets/${requestId}/reset`, {
+      method: "POST",
+      body: JSON.stringify({ new_password: newPassword })
+    });
+    setResetPassword((prev) => ({ ...prev, [requestId]: "" }));
+    load();
+  };
+
   return (
     <div className="space-y-6">
       <div className="card bg-white/80 p-6">
@@ -62,7 +81,7 @@ export default function Admin() {
         <h2 className="section-title text-lg text-ink">Users</h2>
         <div className="mt-4 space-y-3">
           {users.map((user) => (
-            <div key={user.id} className="grid gap-3 rounded-2xl border border-slate-100 px-4 py-3 md:grid-cols-[1.5fr_1fr_1fr_auto]">
+            <div key={user.id} className="grid gap-3 rounded-2xl border border-slate-100 px-4 py-3 md:grid-cols-[1.5fr_1fr_1fr_auto_auto]">
               <div>
                 <p className="text-sm font-semibold text-slate-700">{user.full_name}</p>
                 <p className="text-xs text-slate-500">@{user.username}</p>
@@ -87,9 +106,45 @@ export default function Admin() {
               >
                 Open
               </button>
+              <button
+                onClick={() => deleteUser(user.id)}
+                className="rounded-full border border-rose-200 px-3 py-1 text-xs font-semibold text-rose-500"
+              >
+                Delete
+              </button>
             </div>
           ))}
           {!users.length && <p className="text-sm text-slate-500">No users yet.</p>}
+        </div>
+      </div>
+
+      <div className="card bg-white/90 p-6">
+        <h2 className="section-title text-lg text-ink">Password reset requests</h2>
+        <div className="mt-4 space-y-3">
+          {resets.map((item) => (
+            <div key={item.id} className="rounded-2xl border border-slate-100 px-4 py-3">
+              <p className="text-sm text-slate-700">User #{item.user_id}</p>
+              <p className="text-xs text-slate-500">{item.reason || "No reason"}</p>
+              <div className="mt-3 flex gap-2">
+                <input
+                  type="text"
+                  value={resetPassword[item.id] || ""}
+                  onChange={(event) =>
+                    setResetPassword((prev) => ({ ...prev, [item.id]: event.target.value }))
+                  }
+                  className="w-full rounded-2xl border border-slate-200 px-3 py-2 text-xs"
+                  placeholder="Set temporary password"
+                />
+                <button
+                  onClick={() => resetUserPassword(item.id)}
+                  className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold"
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+          ))}
+          {!resets.length && <p className="text-sm text-slate-500">No reset requests.</p>}
         </div>
       </div>
 

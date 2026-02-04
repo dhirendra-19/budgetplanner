@@ -8,7 +8,14 @@ from app.core.config import get_settings
 from app.core.security import create_access_token, hash_password, verify_password
 from app.db import get_db
 from app import models
-from app.schemas import AuthLogin, TokenResponse, UserCreate, UserOut
+from app.schemas import (
+    AuthLogin,
+    ChangePasswordRequest,
+    ForgotPasswordRequest,
+    TokenResponse,
+    UserCreate,
+    UserOut,
+)
 from app.services.budget import ensure_default_categories
 from app.services.currency import get_currency
 
@@ -68,3 +75,26 @@ def logout(response: Response):
 def me(current_user: models.User = Depends(get_current_user)):
     return current_user
 
+
+@router.post("/change-password")
+def change_password(
+    payload: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    current_user.password_hash = hash_password(payload.new_password)
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.post("/forgot-password")
+def forgot_password(payload: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.username == payload.username).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    req = models.PasswordResetRequest(user_id=user.id, reason=payload.reason)
+    db.add(req)
+    db.commit()
+    return {"status": "ok"}

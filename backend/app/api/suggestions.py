@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.api.deps import get_current_user
 from app.db import get_db
-from app.schemas import SuggestionCreate, SuggestionOut
+from app.schemas import PasswordResetRequestCreate, PasswordResetRequestOut, SuggestionCreate, SuggestionOut
 
 router = APIRouter(prefix="/suggestions", tags=["suggestions"])
 
@@ -33,3 +33,16 @@ def create_suggestion(
     db.commit()
     db.refresh(suggestion)
     return suggestion
+
+
+@router.post("/password-reset", response_model=PasswordResetRequestOut)
+def request_password_reset(
+    payload: PasswordResetRequestCreate,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    req = models.PasswordResetRequest(user_id=current_user.id, reason=payload.reason)
+    db.add(req)
+    db.commit()
+    db.refresh(req)
+    return req

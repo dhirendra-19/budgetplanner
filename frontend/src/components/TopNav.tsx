@@ -16,7 +16,8 @@ export default function TopNav() {
     { to: "/debts", label: "Debts" },
     { to: "/tasks", label: "Tasks" },
     { to: "/alerts", label: "Alerts" },
-    { to: "/suggestions", label: "Suggestions" }
+    { to: "/suggestions", label: "Suggestions" },
+    { to: "/settings", label: "Settings" }
   ];
 
   if (user?.is_admin) {

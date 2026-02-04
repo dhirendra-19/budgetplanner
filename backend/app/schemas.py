@@ -204,6 +204,16 @@ class AuthLogin(BaseModel):
     password: str
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(min_length=6, max_length=128)
+
+
+class ForgotPasswordRequest(BaseModel):
+    username: str
+    reason: Optional[str] = None
+
+
 class CategoryDeleteRequest(BaseModel):
     replacement_category_id: Optional[int] = None
     move_to_uncategorized: bool = True
@@ -277,6 +287,24 @@ class AdminUserOut(BaseModel):
 
 class AdminUpdateUser(BaseModel):
     country: Optional[str] = None
+
+
+class PasswordResetRequestCreate(BaseModel):
+    reason: Optional[str] = None
+
+
+class PasswordResetRequestOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    user_id: int
+    reason: Optional[str]
+    status: str
+    created_at: datetime
+
+
+class AdminResetPassword(BaseModel):
+    new_password: str = Field(min_length=6, max_length=128)
 
 
 BudgetSalaryIn.model_rebuild()

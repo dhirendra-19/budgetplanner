@@ -10,6 +10,7 @@ import Tasks from "./pages/Tasks";
 import Alerts from "./pages/Alerts";
 import Suggestions from "./pages/Suggestions";
 import Admin from "./pages/Admin";
+import Settings from "./pages/Settings";
 import TopNav from "./components/TopNav";
 
 function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -100,6 +101,14 @@ export default function App() {
         element={
           <ProtectedLayout>
             <Suggestions />
+          </ProtectedLayout>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedLayout>
+            <Settings />
           </ProtectedLayout>
         }
       />
