@@ -44,11 +44,20 @@ type DebtSimulation = {
   payoff_schedule: { debt_id: number; debt_name: string; payoff_months: number }[];
 };
 
+type TaskItem = {
+  id: number;
+  title: string;
+  due_date?: string | null;
+  status: string;
+  priority: string;
+};
+
 export default function Dashboard() {
   const { user } = useAuth();
   const currency = user?.currency || "USD";
   const [summary, setSummary] = useState<BudgetSummary | null>(null);
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
+  const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [debtPlan, setDebtPlan] = useState<DebtSimulation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() => {
@@ -70,11 +79,13 @@ export default function Dashboard() {
     const query = `?year=${selectedMonth.year}&month=${selectedMonth.month}`;
     Promise.all([
       apiFetch<BudgetSummary>(`/budget/summary${query}`),
-      apiFetch<AlertItem[]>(`/alerts${query}`)
+      apiFetch<AlertItem[]>(`/alerts${query}`),
+      apiFetch<TaskItem[]>("/tasks")
     ])
-      .then(async ([summaryData, alertData]) => {
+      .then(async ([summaryData, alertData, taskData]) => {
         setSummary(summaryData);
         setAlerts(alertData);
+        setTasks(taskData);
         if (!summaryData.salary) {
           navigate("/wizard");
         }
@@ -105,6 +116,8 @@ export default function Dashboard() {
       </div>
     );
   }
+
+  const topTasks = tasks.slice(0, 5);
 
   return (
     <div className="space-y-10">
@@ -209,6 +222,32 @@ export default function Dashboard() {
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+
+      <section className="card bg-white/90 p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="section-title text-xl text-ink">Tasks snapshot</h2>
+          <button
+            onClick={() => navigate("/tasks")}
+            className="rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold"
+          >
+            Open tasks
+          </button>
+        </div>
+        <div className="mt-4 space-y-2 text-sm text-slate-600">
+          {topTasks.map((task) => (
+            <div key={task.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-2">
+              <div>
+                <p className="font-semibold text-slate-700">{task.title}</p>
+                <p className="text-xs text-slate-500">Due {task.due_date || "No due date"}</p>
+              </div>
+              <span className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                {task.status.replace("_", " ")}
+              </span>
+            </div>
+          ))}
+          {!topTasks.length && <p className="text-sm text-slate-500">No tasks yet.</p>}
         </div>
       </section>
 

@@ -142,6 +142,11 @@ class TaskBase(BaseModel):
     description: Optional[str] = None
     due_date: Optional[date] = None
     priority: str = "medium"
+    status: str = "pending"
+    alert_offset_minutes: Optional[int] = None
+    alert_channel: str = "app"
+    alert_email: Optional[str] = None
+    alert_phone: Optional[str] = None
     is_completed: bool = False
 
 
@@ -154,6 +159,11 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     due_date: Optional[date] = None
     priority: Optional[str] = None
+    status: Optional[str] = None
+    alert_offset_minutes: Optional[int] = None
+    alert_channel: Optional[str] = None
+    alert_email: Optional[str] = None
+    alert_phone: Optional[str] = None
     is_completed: Optional[bool] = None
 
 

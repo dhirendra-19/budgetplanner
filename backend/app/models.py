@@ -146,7 +146,13 @@ class Task(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     due_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     priority: Mapped[str] = mapped_column(String(20), default="medium")
+    status: Mapped[str] = mapped_column(String(20), default="pending")
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    alert_offset_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    alert_channel: Mapped[str] = mapped_column(String(20), default="app")
+    alert_email: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    alert_phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    last_alerted_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="tasks")
