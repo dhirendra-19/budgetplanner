@@ -1,4 +1,4 @@
-import { FormEvent, useEffect, useState } from "react";
+﻿import { FormEvent, useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 
 const STATUS_OPTIONS = ["pending", "in_progress", "completed", "overdue"] as const;
@@ -205,7 +205,6 @@ export default function Tasks() {
               onChange={(event) => setForm((prev) => ({ ...prev, alert_email: event.target.value }))}
               placeholder="Email for alert"
               className="rounded-2xl border border-slate-200 px-4 py-2 md:col-span-2"
-              required
             />
           )}
           {form.alert_channel === "sms" && (
@@ -215,7 +214,6 @@ export default function Tasks() {
               onChange={(event) => setForm((prev) => ({ ...prev, alert_phone: event.target.value }))}
               placeholder="Phone for alert"
               className="rounded-2xl border border-slate-200 px-4 py-2 md:col-span-2"
-              required
             />
           )}
 
@@ -243,7 +241,7 @@ export default function Tasks() {
                 </p>
                 <p className="text-xs text-slate-500">{task.description || "No notes"}</p>
                 <p className="text-xs text-slate-400">
-                  Due: {task.due_date || "No due date"} � Priority: {task.priority}
+                  Due: {task.due_date || "No due date"} • Priority: {task.priority}
                 </p>
               </div>
               <div className="flex items-center gap-3 text-xs text-slate-500">

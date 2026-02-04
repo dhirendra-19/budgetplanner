@@ -1,12 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import admin, alerts, auth, budget, categories, debts, expenses, suggestions, tasks
+from app.api import auth, budget, categories, debts, expenses, alerts, tasks, suggestions, admin
 from app.core.config import get_settings
 from app.core.security import hash_password
 from app.db import SessionLocal
 from app import models
-from app.services.task_alerts import run_task_alerts
 
 settings = get_settings()
 
@@ -49,28 +48,6 @@ def ensure_admin_user():
         db.commit()
     finally:
         db.close()
-
-
-@app.on_event("startup")
-def start_task_scheduler():
-    if settings.disable_task_scheduler:
-        return
-    try:
-        from apscheduler.schedulers.background import BackgroundScheduler
-
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(run_task_alerts, "interval", minutes=1, id="task_alerts")
-        scheduler.start()
-        app.state.scheduler = scheduler
-    except Exception:
-        return
-
-
-@app.on_event("shutdown")
-def stop_task_scheduler():
-    scheduler = getattr(app.state, "scheduler", None)
-    if scheduler:
-        scheduler.shutdown(wait=False)
 
 
 @app.get("/")

@@ -1,4 +1,4 @@
-# Budget + Task Planner (Local)
+Ôªø# Budget + Task Planner (Local)
 
 Deterministic, rule-based budget and task planner. No AI/LLM calls. Run locally with React + FastAPI + SQLite.
 
@@ -8,7 +8,7 @@ Deterministic, rule-based budget and task planner. No AI/LLM calls. Run locally 
 - Editable categories with automatic recalculation
 - Expense tracking + real-time alerts (80% and 100% thresholds)
 - Debt payoff simulator (avalanche or snowball)
-- Task planning (priorities, due dates, statuses, alerts)
+- Task planning (priorities, due dates)
 
 ## Tech Stack
 - Frontend: React + TypeScript + Vite + Tailwind
@@ -38,26 +38,6 @@ JWT_SECRET=dev-change-me
 FRONTEND_ORIGIN=http://localhost:5173
 ```
 
-### Optional: SMS + Email alerts
-The app can send task alerts via SMS (Twilio) or Email (SendGrid). If not configured, alerts stay in-app only.
-
-Add to `backend/.env`:
-```
-# Twilio
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_FROM_NUMBER=+15551234567
-
-# SendGrid
-SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-SENDGRID_FROM_EMAIL=alerts@yourdomain.com
-```
-
-Disable the scheduler (if you do not want background jobs):
-```
-DISABLE_TASK_SCHEDULER=true
-```
-
 ### 2) Frontend
 ```bash
 cd "frontend"
@@ -74,7 +54,7 @@ VITE_API_URL=http://localhost:8000
 
 ## Security Notes
 - Auth tokens are set as httpOnly cookies by the API.
-- If you enable ìRemember meî on the login screen, a copy of the token is stored in `localStorage` (less secure). This is optional and can be disabled.
+- If you enable ‚ÄúRemember me‚Äù on the login screen, a copy of the token is stored in `localStorage` (less secure). This is optional and can be disabled.
 
 ## Future Publish (Postgres + Hosting)
 
@@ -104,7 +84,7 @@ VITE_API_URL=http://localhost:8000
 - Use HTTPS for both frontend and backend.
 
 ## Notes
-- Category deletions require moving expenses to a replacement category or to ìUncategorizedî.
+- Category deletions require moving expenses to a replacement category or to ‚ÄúUncategorized‚Äù.
 - Budget summaries recalculate whenever categories or expenses change.
 
 Admin login:
