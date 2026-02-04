@@ -23,8 +23,8 @@ def upgrade():
     op.add_column("tasks", sa.Column("alert_phone", sa.String(length=40), nullable=True))
     op.add_column("tasks", sa.Column("last_alerted_at", sa.DateTime(), nullable=True))
 
-    op.execute("UPDATE tasks SET status = 'completed' WHERE is_completed = 1")
-    op.execute("UPDATE tasks SET status = 'pending' WHERE is_completed = 0")
+    op.execute("UPDATE tasks SET status = 'completed' WHERE is_completed = TRUE")
+    op.execute("UPDATE tasks SET status = 'pending' WHERE is_completed = FALSE")
 
     op.alter_column("tasks", "status", server_default=None)
     op.alter_column("tasks", "alert_channel", server_default=None)
