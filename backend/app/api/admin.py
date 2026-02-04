@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import models
@@ -26,7 +26,7 @@ def impersonate(
 ):
     user = db.query(models.User).filter(models.User.id == payload.user_id).first()
     if not user:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
     token = create_access_token(user.username)
     return {"access_token": token}
 

@@ -112,7 +112,11 @@ def get_spent_by_category(db: Session, user_id: int, year: int, month: int) -> D
 def compute_budget_summary(db: Session, user_id: int, year: int, month: int):
     categories = (
         db.query(models.Category)
-        .filter(models.Category.user_id == user_id, models.Category.is_active.is_(True))
+        .filter(
+            models.Category.user_id == user_id,
+            models.Category.is_active.is_(True),
+            models.Category.tag != "uncategorized",
+        )
         .all()
     )
     salary, other_income = get_salary_for_month(db, user_id, year, month)

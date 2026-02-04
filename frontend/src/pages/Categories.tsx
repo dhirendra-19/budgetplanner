@@ -125,15 +125,17 @@ export default function Categories() {
       <div className="grid gap-4">
         {categories
           .filter((cat) => !(cat.is_system && cat.tag === "uncategorized"))
-          .map((cat, idx) => (
-            <div key={cat.local_id ?? `${cat.id}-${idx}`} className="card bg-white/90 p-5">
+          .map((cat) => (
+            <div key={cat.local_id ?? cat.id} className="card bg-white/90 p-5">
               <div className="grid gap-3 md:grid-cols-[1.6fr_1fr_0.7fr_auto]">
                 <input
                   value={cat.name}
                   onChange={(event) => {
                     const value = event.target.value;
                     setCategories((prev) =>
-                      prev.map((item, i) => (i === idx ? { ...item, name: value } : item))
+                      prev.map((item) =>
+                        item.local_id === cat.local_id ? { ...item, name: value } : item
+                      )
                     );
                   }}
                   className="rounded-2xl border border-slate-200 px-4 py-2"
@@ -144,7 +146,9 @@ export default function Categories() {
                   onChange={(event) => {
                     const value = Number(event.target.value);
                     setCategories((prev) =>
-                      prev.map((item, i) => (i === idx ? { ...item, monthly_limit: value } : item))
+                      prev.map((item) =>
+                        item.local_id === cat.local_id ? { ...item, monthly_limit: value } : item
+                      )
                     );
                   }}
                   className="rounded-2xl border border-slate-200 px-4 py-2"
@@ -154,7 +158,9 @@ export default function Categories() {
                   onChange={(event) => {
                     const value = event.target.value;
                     setCategories((prev) =>
-                      prev.map((item, i) => (i === idx ? { ...item, tag: value } : item))
+                      prev.map((item) =>
+                        item.local_id === cat.local_id ? { ...item, tag: value } : item
+                      )
                     );
                   }}
                   className="rounded-2xl border border-slate-200 px-4 py-2"
